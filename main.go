@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"mhrstartup/auth"
 	"mhrstartup/handler"
 	"mhrstartup/user"
 
@@ -20,14 +21,18 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
+	authService := auth.NewService()
 
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
 
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
+	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
+	api.POST("/avatars", userHandler.UploadAvatar)
+	// api.POST("/users/fetch", authMiddleware(authService, userService), userHandler.FetchUser)
 
 	router.Run()
 }
